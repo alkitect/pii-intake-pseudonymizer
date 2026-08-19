@@ -5,6 +5,7 @@ This tool helps **reduce accidental PII exposure** in local files. It is **not**
 ## What it protects
 
 - Common identifiers in **text** exports: emails, harvested person names, phones, IBAN (checksum-valid), optional IP/BSN/MAC/postcode/DOB
+- **Optional technical categories** when flagged: labeled hostnames (`--also-machines`), absolute paths (`--also-paths`), command-like lines (`--also-commands`), PEM blocks (`--also-certificates`), or all four via **`--also-technical`**
 - **Stable teaching tokens** via an encrypted reversible map (pseudonymization)
 - **Fail-closed** abort before write when high-confidence residuals (non-allowlisted email, checksum IBAN) remain
 
@@ -15,6 +16,12 @@ This tool helps **reduce accidental PII exposure** in local files. It is **not**
 - Content pasted into chat before scrubbing
 - Re-identification if you share **both** scrubbed files and the map key
 - Full NLP coverage when `--ner` is off (`ner=skipped`)
+- Hostnames, absolute paths, shell command lines, or PEM certificate blocks on **default** write (pass **`--also-technical`** or individual `--also-*` flags when exports contain them)
+- **`residual=0` does not mean technical-safe** without the technical flags — only email and checksum-valid IBAN trigger fail-write
+
+## Pre-scrub risk heuristic
+
+`pii_detectors.looks_like_sensitive_technical_paste()` detects PEM markers, command-like lines, labeled hostnames, and absolute paths without replacing them. Adopters may use it in custom CI gates to warn operators before write; it is not invoked by the CLI automatically.
 
 ## Pseudonymization vs anonymization
 

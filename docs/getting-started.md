@@ -64,6 +64,16 @@ pii-intake-pseudonymizer input
 
 Inspect `output/` — emails and names become stable tokens (`user_001@example.test`, `PERSON_001`, …). The encrypted mapping lives in `.local/pii-map.json`.
 
+## Day 3+ — technical exports (opt-in)
+
+When drops contain hostnames, absolute paths, shell lines, or PEM blocks (common in log exports), pass **`--also-technical`** on the write pass:
+
+```bash
+pii-intake-pseudonymizer input --also-technical
+```
+
+Default scrub does not replace those categories. See [CLI reference](cli-reference.md#what-is-replaced) for detection scope and limitations.
+
 ## Verify installation
 
 ```bash

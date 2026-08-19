@@ -20,6 +20,7 @@ flowchart TB
   input[input_or_paths]
   cli[pii-intake-pseudonymizer]
   layer1[Layer1_stdlib_detectors]
+  layer1b[Layer1b_opt_in_technical]
   layer2[Layer2_opt_in_NER]
   residual[Residual_gate]
   write[Write_output]
@@ -27,7 +28,7 @@ flowchart TB
   key[Key_outside_repo]
   abort[Abort_no_write]
   human --> input --> cli
-  cli --> layer1 --> layer2 --> residual
+  cli --> layer1 --> layer1b --> layer2 --> residual
   residual -->|pass| write
   residual -->|fail| abort
   write --> map
@@ -39,7 +40,7 @@ flowchart TB
 | Module | Role |
 |--------|------|
 | `scripts/anonymize_intake.py` | CLI entry, modes, staging, residual abort |
-| `scripts/pii_detectors.py` | Phones, IBAN, BSN, MAC, postcode, DOB, residual scan |
+| `scripts/pii_detectors.py` | Phones, IBAN, BSN, MAC, postcode, DOB, residual scan; flag-gated machine/path/command/PEM finders |
 | `scripts/pii_map_crypto.py` | Fernet encrypt/decrypt, key resolution |
 | `scripts/pii_ner.py` | Opt-in Presidio PERSON (`--ner`) |
 | `config/*` | Allowlist, org list, person fields, NER config |

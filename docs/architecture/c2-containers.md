@@ -15,7 +15,7 @@ Deployable boundaries on a single machine. No network port; “containers” are
 ### Pseudonymizer CLI
 
 - **Package:** `scripts/anonymize_intake.py` (+ detectors, map crypto, optional NER)
-- **Responsibilities:** Tokenize text; residual fail-closed before write; encrypted map; default agent-safe stdout; optional `--summary` detect-only
+- **Responsibilities:** Tokenize text (Layer 1 + optional Layer 1b technical flags); residual fail-closed before write; encrypted map; default agent-safe stdout; optional `--summary` detect-only
 - **Data:** Source text, encrypted map, written output tree
 
 ### NER plugin (opt-in)
@@ -42,7 +42,7 @@ Deployable boundaries on a single machine. No network port; “containers” are
 ### Local ciphertext (`.local/`)
 
 - **Files:** `pii-map.json` (encrypted), optional `pii-map-audit.jsonl`
-- **Role:** Reversible token store; never commit
+- **Role:** Reversible token store; may include `machines`, `paths`, `commands`, and `certs` map stores when technical flags are used; never commit
 
 ### Map key store (outside sync)
 

@@ -19,6 +19,19 @@ In-memory replace using teaching-stable `PiiMap` pseudonyms:
 
 **Code:** `anonymize_text`, `pii_detectors.py`
 
+### Layer 1b — opt-in technical (default off)
+
+Step **5b** in `anonymize_text()` — runs only when `--also-machines`, `--also-paths`, `--also-commands`, `--also-certificates`, or the **`--also-technical`** bundle is set. Order: certificates → paths → commands → labeled machines.
+
+- PEM blocks → `CERT_NNN`
+- Absolute paths → `PATH_NNN`
+- Command-like whole lines → `CMD_NNN`
+- Labeled hostname/machine fields → `MACHINE_NNN`
+
+Technical categories are **not** in the high-confidence residual fail-write gate (email + checksum IBAN).
+
+**Code:** `anonymize_text` step 5b, `pii_detectors.py` finders
+
 ### Layer 2 NER (opt-in)
 
 Presidio PERSON spans when `--ner` and `requirements-pii-ner.txt` are present. Default off.
@@ -50,14 +63,16 @@ flowchart TB
   main[main]
   collect[collect_files]
   tok[Layer1_anonymize_text]
+  tech[Layer1b_opt_in_technical]
   ner[Layer2_NER_opt_in]
   residual[residual_gate]
   write[write_output]
   mapSave[encrypted_map_save]
   abort[abort_no_write]
   main --> collect --> tok
+  tok --> tech
   tok -.-> ner
-  tok --> residual
+  tech --> residual
   ner --> residual
   residual -->|pass| write
   residual -->|fail| abort
@@ -69,7 +84,7 @@ flowchart TB
 ### Successful default write
 
 1. Collect text paths.
-2. Tokenize in memory (Layer 1; optional Layer 2).
+2. Tokenize in memory (Layer 1; optional Layer 1b when flagged; optional Layer 2).
 3. Residual gate passes.
 4. Write `output/` mirror; encrypt-save map (unless `--irreversible`).
 

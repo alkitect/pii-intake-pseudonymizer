@@ -39,12 +39,41 @@ Entry point: `pii-intake-pseudonymizer` (wrapper) or `python scripts/anonymize_i
 |------|---------|-------------|
 | `--ner` / `--no-ner` | off | Opt-in Presidio PERSON NER |
 | `--also-ip` | off | Scrub IPv4/IPv6 |
+| `--also-machines` | off | Scrub labeled hostname/machine fields (`MACHINE_NNN`) |
+| `--also-paths` | off | Scrub absolute Windows/Unix paths (`PATH_NNN`) |
+| `--also-commands` | off | Scrub command-like whole lines (`CMD_NNN`) |
+| `--also-certificates` | off | Scrub PEM certificate blocks (`CERT_NNN`) |
+| `--also-technical` | off | Enable all four technical flags above (logs/exports with hostnames, paths, shell lines, or PEM) |
 | `--also-nl-id` | off | Labeled BSN (11-proef) |
 | `--also-p2` / `--no-also-p2` | on | MAC, NL postcode, labeled DOB |
 | `--harvest-names` / `--no-harvest-names` | on | Harvest person display names from structured fields |
 | `--harvest-single-token` | off | Allow single-token display names in harvest |
 | `--expand-name-parts` / `--no-expand-name-parts` | on | Also replace first/last tokens from multi-token names |
 | `--scrub-orgs` / `--no-scrub-orgs` | on | Replace org names from org list |
+
+## What is replaced
+
+| Category | Detection scope | Replacement | Default |
+|----------|-----------------|---------------|---------|
+| Email | Bare addresses and `Name <email>` | `user_NNN@example.test` | on |
+| Person | Harvested display names, optional NER | `PERSON_NNN` | on (harvest) |
+| Phone | NL/EU-ish patterns | `PHONE_NNN` | on |
+| IBAN | Checksum-valid candidates | `IBAN_NNN` | on |
+| IP | IPv4/IPv6 (non-loopback, non-doc) | `203.0.113.N` / `2001:db8::…` | off (`--also-ip`) |
+| Machine | Labeled `hostname:` / `host=` / `machine name:` fields | `MACHINE_NNN` | off (`--also-machines`) |
+| Path | Absolute Windows paths; Unix under `/home`, `/Users`, `/tmp`, `/opt`, `/var`, `/mnt` | `PATH_NNN` | off (`--also-paths`) |
+| Command | Whole lines starting with `py`, `python`, `powershell`, `git`, `curl`, etc. | `CMD_NNN` | off (`--also-commands`) |
+| Certificate | Whole PEM blocks (`-----BEGIN … -----END …`) | `CERT_NNN` | off (`--also-certificates`) |
+| BSN | Labeled fields (11-proef) | synthetic BSN token | off (`--also-nl-id`) |
+| MAC / postcode / DOB | Patterns in `pii_detectors` | category tokens | on (`--also-p2`) |
+
+Use **`--also-technical`** when exports contain infrastructure noise (hostnames, paths, shell snippets, PEM). Technical categories are **not** included in the high-confidence fail-write gate (email + checksum IBAN). A run with `residual=0` can still leave hostnames, paths, commands, or PEM unless you pass the technical flags.
+
+### Limitations (technical scrub)
+
+- **Commands:** line-start prefixes only; mid-line commands are not scrubbed
+- **Unix paths:** only `/home`, `/Users`, `/tmp`, `/opt`, `/var`, `/mnt` prefixes
+- **Residuals:** technical categories are replace-only when flagged; they do not trigger fail-write on residual scan
 
 ## Map and crypto
 
@@ -80,6 +109,9 @@ pii-intake-pseudonymizer input --irreversible --force-path
 
 # Copy staging into a consumer repo after write
 pii-intake-pseudonymizer input --copy-to ../my-story-repo
+
+# Infra-heavy exports (logs, PEM, shell snippets)
+pii-intake-pseudonymizer input --also-technical
 
 # Migrate plaintext map
 pii-intake-pseudonymizer --map-migrate

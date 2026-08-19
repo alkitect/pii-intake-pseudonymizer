@@ -6,6 +6,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Added
 
+- Opt-in technical scrub: `--also-machines`, `--also-paths`, `--also-commands`, `--also-certificates`, and **`--also-technical`** bundle (default off)
 - Documentation set: getting started, architecture (C4), ADRs, CLI reference, security guide
 - `SECURITY.md`, examples index
 - Public extract renamed from `pii-intake-scrubber` to `pii-intake-pseudonymizer`

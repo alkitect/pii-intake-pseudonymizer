@@ -9,13 +9,13 @@ Mapped tokens (`PERSON_001`, `user_001@example.test`, …) are **pseudonyms**, n
 ## System boundary
 
 - **In scope:** Local text/markdown/XML/JSON/CSV paths; encrypted map under `.local/`; config under `config/`
-- **Out of scope:** Certified compliance de-identification; scrubbing git history; cloud redaction APIs; binary document conversion
+- **Out of scope:** Certified compliance de-identification; scrubbing git history; cloud redaction APIs; binary document conversion; automatic technical scrub without explicit `--also-*` flags
 
 ## Actors
 
 ### Human operator
 
-Drops exports into `input/` (or custom paths), manages the map encryption key, runs detect-only scans before writes, optionally enables `--ner` or human-only flags (`--report`, `--irreversible`, `--map-prune-unused`).
+Drops exports into `input/` (or custom paths), manages the map encryption key, runs detect-only scans before writes, optionally enables `--ner`, **`--also-technical`** (or individual `--also-*` flags) for infra-heavy exports, or human-only flags (`--report`, `--irreversible`, `--map-prune-unused`).
 
 ### Downstream consumer
 

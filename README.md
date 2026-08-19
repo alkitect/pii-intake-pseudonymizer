@@ -99,6 +99,7 @@ This tool can rewrite your local files if you run it in non-`--dry-run` / non-`-
 - **Kill-switch:** use `--dry-run` / `--summary` to prevent output/map writes; run `./scripts/uninstall-from-local.sh` to remove installed wrappers
 - **Defaults:** detect-only supported; real pseudonymization requires an encryption key for saving the map
 - **Tradeoffs:** stable tokenization requires a persistent encrypted map; deleting `./.local/pii-map.json` will change pseudonyms
+- **Infra-heavy exports:** logs, PEM drops, or shell snippets need **`--also-technical`** (or individual `--also-machines`, `--also-paths`, `--also-commands`, `--also-certificates`); default scrub leaves those categories intact
 
 - This GitHub repo is the release source for tagged releases and public docs — see [CONTRIBUTING.md](CONTRIBUTING.md)
 
