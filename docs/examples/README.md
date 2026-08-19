@@ -19,3 +19,5 @@ Run detect-only on a copy under `input/`:
 ```bash
 pii-intake-pseudonymizer input --summary
 ```
+
+ServiceNow inbox + story layout: [pii-intake-pseudonymizer-sn examples](https://github.com/alkitect/pii-intake-pseudonymizer-sn/blob/main/docs/examples/README.md).

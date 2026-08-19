@@ -30,7 +30,7 @@ echo 'Contact jane.doe@example.com for access.' > input/sample.txt
 pii-intake-pseudonymizer input --summary
 ```
 
-`--summary` is detect-only: redacted hit counts, no output files, no map writes. Exit code is non-zero when hits are found (`--fail-on-hits` is implied).
+`--summary` is detect-only: redacted hit counts, no output files, no map writes. **Exit code is non-zero when hits are found** (`--fail-on-hits` is implied) — that is expected, not an install failure.
 
 ## Day 2 — dry run (still no durable writes)
 
@@ -42,27 +42,30 @@ Simulates token replacement in memory; does not write `output/` or update the ma
 
 ## Day 3 — real pass (key required)
 
-Generate a Fernet key once (store outside the repo):
+Generate a Fernet key once and save it outside cloud sync:
 
 ```bash
-python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+mkdir -p ~/.config/servicenow-pii
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())" \
+  > ~/.config/servicenow-pii/pii-map.key
+chmod 600 ~/.config/servicenow-pii/pii-map.key   # Unix
+export PII_MAP_KEY_FILE="$HOME/.config/servicenow-pii/pii-map.key"
 ```
 
-Save it to a file outside cloud sync. Platform defaults if you set nothing:
+Platform defaults if you set no env var (CLI auto-loads when the file exists):
 
 - Windows: `%LOCALAPPDATA%/ServiceNow-PII/pii-map.key`
 - Linux/macOS: `~/.config/servicenow-pii/pii-map.key`
 
-Or any path outside sync (example):
+Run the write pass:
 
 ```bash
-export PII_MAP_KEY_FILE="$HOME/.config/pii-intake/pii-map.key"
-# or: export PII_MAP_KEY="<paste key>"
-
 pii-intake-pseudonymizer input
 ```
 
 Inspect `output/` — emails and names become stable tokens (`user_001@example.test`, `PERSON_001`, …). The encrypted mapping lives in `.local/pii-map.json`.
+
+**Success check:** `grep user_001 output/sample.txt` should show `user_001@example.test`.
 
 ## Day 3+ — technical exports (opt-in)
 
@@ -76,9 +79,13 @@ Default scrub does not replace those categories. See [CLI reference](cli-referen
 
 ## Verify installation
 
+Runs unit tests from the cloned repo (confirms wrapper + dependencies; does not process your `input/` sample):
+
 ```bash
 verify-pii-intake-pseudonymizer
 ```
+
+Re-run `./scripts/install-to-local.sh` after `git pull` so `~/.local/share/…` matches your clone.
 
 ## Optional NER (Presidio)
 
@@ -94,13 +101,18 @@ NER is **off by default**. Counts report `ner=skipped` when extras are not insta
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
 | `map=unavailable` on `--summary` | Expected without a key | Normal for detect-only |
-| Write fails without key | Real pass needs encryption key | Set `PII_MAP_KEY` or `PII_MAP_KEY_FILE` |
+| Write fails without key | Real pass needs encryption key | Set `PII_MAP_KEY_FILE` (preferred) or `PII_MAP_KEY` |
 | `residual=…` abort, no output | High-confidence email/IBAN left | Fix source or adjust allowlist; see [Security](security.md) |
 | Different tokens on second run | Map deleted or new key | Keep `.local/pii-map.json` and the same key |
 | Binary files skipped | `.xlsx`, `.pdf` not pseudonymized as text | Export to CSV/text first |
 
+## Ready to share
+
+You are ready to share artifacts when: `output/` tokens look right, paths you will commit pass `--summary`, and `.local/` stays out of git.
+
 ## Next steps
 
+- [Product comparison](product-comparison.md) — generic vs ServiceNow layout
 - [Configuration](configuration.md) — allowlist, org scrub list, person-field harvest
 - [CLI reference](cli-reference.md) — all flags
 - [Architecture](architecture/README.md) — how components fit together
