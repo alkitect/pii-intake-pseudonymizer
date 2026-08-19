@@ -4,22 +4,22 @@ Before tag: README must pass `./scripts/ci-check.sh`. See [CONTRIBUTING.md](../C
 
 First public tag: v0.1.0
 
-Repo URL: `https://github.com/alkitect/pii-intake-scrubber`
+Repo URL: `https://github.com/alkitect/pii-intake-pseudonymizer`
 
 ## GitHub About
 
 | Field | Value |
 |-------|--------|
-| Description | Offline PII intake scrubber — pseudonymizes local text files with a stable encrypted map |
+| Description | Offline PII intake pseudonymizer — stable token replacement for local text files with an encrypted map |
 | Website | _(empty — tip via README Ko-fi badge)_ |
-| Topics | `pii`, `privacy`, `anonymization`, `security`, `offline`, `python` |
+| Topics | `pii`, `privacy`, `pseudonymization`, `security`, `offline`, `python` |
 
 ```bash
-gh repo create pii-intake-scrubber --public --source=. --remote=origin
-gh repo edit alkitect/pii-intake-scrubber \
-  --description "Offline PII intake scrubber — pseudonymizes local text files with a stable encrypted map" \
+gh repo create pii-intake-pseudonymizer --public --source=. --remote=origin
+gh repo edit alkitect/pii-intake-pseudonymizer \
+  --description "Offline PII intake pseudonymizer — stable token replacement for local text files with an encrypted map" \
   --homepage "" \
-  --add-topic pii --add-topic privacy --add-topic anonymization --add-topic security \
+  --add-topic pii --add-topic privacy --add-topic pseudonymization --add-topic security \
   --add-topic offline --add-topic python
 ```
 
@@ -31,8 +31,7 @@ After GitHub is live:
 
 ```bash
 cd /path/to/Linux
-git submodule add -b v0.1.0 https://github.com/alkitect/pii-intake-scrubber.git public/pii-intake-scrubber
+git submodule add -b v0.1.0 https://github.com/alkitect/pii-intake-pseudonymizer.git public/pii-intake-pseudonymizer
 ```
 
 Pin submodule gitlink to tag `v0.1.0`, not `main`.
-

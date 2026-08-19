@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local offline PII scrubber / pseudonymizer.
+"""Local offline PII intake pseudonymizer.
 
 Generic mode: run this script on one or more input paths (files or directories),
 write scrubbed output into an output root (defaults to `./output/`), and keep a
@@ -42,7 +42,7 @@ import pii_map_crypto as _crypto  # noqa: E402
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 # Generic defaults (relative to the current working directory).
-# These are intentionally NOT tied to ServiceNow monorepo layout.
+# Generic input/output roots — not tied to any consumer repo layout.
 DEFAULT_RAW = Path.cwd() / "input"
 DEFAULT_CLEAN = Path.cwd() / "output"
 LOCAL_DIR = Path.cwd() / ".local"
@@ -1573,7 +1573,7 @@ def copy_output_to(clean_root: Path, dest_root: Path) -> Path:
     """Copy output staging tree to `dest_root/intake-clean/`.
 
     This is a generic post-process hook so the scrubbed output can be reused
-    by other tooling without depending on this repo's ServiceNow story layout.
+    by other tooling without depending on a specific consumer repo layout.
     """
     if not dest_root:
         raise ValueError("copy_output_to dest_root is empty")
@@ -1585,39 +1585,6 @@ def copy_output_to(clean_root: Path, dest_root: Path) -> Path:
         shutil.rmtree(target)
     shutil.copytree(clean_root, target, ignore=shutil.ignore_patterns(".gitkeep"))
     return target
-
-
-def _pii_detect():
-    """Cursor hook helper (optional).
-
-    For generic publication we treat Cursor integration as optional. If the hook
-    helpers are not available, manifest recording is skipped.
-    """
-    hooks_dir = Path(__file__).resolve().parents[1] / ".cursor" / "hooks"
-    if not hooks_dir.is_dir():
-        return None
-    if str(hooks_dir) not in sys.path:
-        sys.path.insert(0, str(hooks_dir))
-    try:
-        import pii_detect as _pd  # noqa: PLC0415
-
-        return _pd
-    except Exception:
-        return None
-
-
-def _record_intake_outputs(dests: list[Path]) -> None:
-    """Tell Cursor hook helpers these output files came from a successful scrub."""
-    if not dests:
-        return
-    _pd = _pii_detect()
-    if _pd is None:
-        return
-    for dest in dests:
-        if dest.is_dir():
-            _pd.record_intake_tree(dest, REPO_ROOT, local_dir=LOCAL_DIR)
-        elif dest.is_file():
-            _pd.record_intake_write(dest, REPO_ROOT, local_dir=LOCAL_DIR)
 
 
 def _under_dir(path: Path, root: Path) -> bool:
@@ -1673,7 +1640,7 @@ def prune_clean_not_kept(clean_root: Path, keep: set[Path]) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        description="Offline PII scrubber / pseudonymizer (generic text inputs)."
+        description="Offline PII intake pseudonymizer (generic text inputs)."
     )
     p.add_argument(
         "paths",
