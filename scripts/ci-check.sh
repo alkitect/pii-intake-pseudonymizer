@@ -68,6 +68,7 @@ REQUIRED_DOCS=(
   CHANGELOG.md
   docs/README.md
   docs/getting-started.md
+  docs/product-comparison.md
   docs/configuration.md
   docs/cli-reference.md
   docs/security.md
@@ -86,6 +87,11 @@ done
 
 shopt -s nullglob
 for f in scripts/*.sh; do
+  mode="$(git ls-files -s "${f}" | awk '{print $1}')"
+  if [[ "${mode}" != "100755" ]]; then
+    echo "ci-check: ${f} must be executable in git (100755); run: git update-index --chmod=+x ${f}" >&2
+    exit 1
+  fi
   bash -n "${f}"
 done
 shopt -u nullglob
@@ -103,13 +109,13 @@ python -m venv "${tmp}/venv"
 export PATH="${tmp}/venv/bin:${PATH}"
 python -m pip install -q -r "${ROOT}/requirements-pii.txt" pytest
 
-"${ROOT}/scripts/install-to-local.sh"
+bash "${ROOT}/scripts/install-to-local.sh"
 test -x "${HOME}/.local/bin/pii-intake-pseudonymizer"
 test -x "${HOME}/.local/bin/verify-pii-intake-pseudonymizer"
 
 "${HOME}/.local/bin/verify-pii-intake-pseudonymizer"
 
-"${ROOT}/scripts/uninstall-from-local.sh"
+bash "${ROOT}/scripts/uninstall-from-local.sh"
 test ! -e "${HOME}/.local/bin/pii-intake-pseudonymizer"
 test ! -e "${HOME}/.local/bin/verify-pii-intake-pseudonymizer"
 test ! -d "${XDG_DATA_HOME}/pii-intake-pseudonymizer"
