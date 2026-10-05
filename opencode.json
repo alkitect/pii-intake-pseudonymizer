@@ -7,43 +7,15 @@
     "glob": false
   },
   "mcp": {
-    "grepai": {
-      "type": "local",
-      "enabled": true,
-      "command": [
-        "grepai",
-        "mcp-serve"
-      ],
-      "cwd": "."
-    },
-    "serena": {
-      "type": "local",
-      "enabled": false,
-      "command": [
-        "serena",
-        "start-mcp-server",
-        "--context",
-        "ide",
-        "--project-from-cwd",
-        "--log-level",
-        "WARNING"
-      ],
-      "cwd": "."
-    },
     "codegraph": {
       "type": "local",
-      "enabled": false,
+      "enabled": true,
       "command": [
         "codegraph",
         "serve",
         "--mcp"
       ],
       "cwd": "."
-    },
-    "context7": {
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp",
-      "enabled": false
     }
   }
 }
